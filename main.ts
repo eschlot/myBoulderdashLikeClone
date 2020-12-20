@@ -33,8 +33,7 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
 function testFallingStone (col: number, row: number) {
     mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
     mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
-    if ((tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), sprites.castle.tilePath5)) && 
-        (!((col == mienenArbeiterCol) && (row+1==mienenArbeiterRow)))) {
+    if ((tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), sprites.castle.tilePath5) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), myTiles.tile1)) && !(col == mienenArbeiterCol && row + 1 == mienenArbeiterRow)) {
         return true
     } else {
         return false
@@ -116,9 +115,9 @@ let mienenArbeiterCol = 0
 let mienenArbeiterRow = 0
 let alleTilePositionen: tiles.Location[] = []
 let Mienenarbeiter: Sprite = null
-let nextPos = null
-let nuggetPosition:tiles.Location  = null
 let stonePosition: tiles.Location = null
+let nuggetPosition:tiles.Location  = null
+let nextPos = null
 controller.left.repeatInterval=150
 controller.up.repeatInterval=150
 controller.down.repeatInterval=150
@@ -156,9 +155,8 @@ for (let index = 0; index < 50; index++) {
 game.onUpdate(function () {
     for (let stoneIndex2 = 0; stoneIndex2 <= fallingStones.length - 1; stoneIndex2++) {
         fallingStone = fallingStones[stoneIndex2]
-        console.debug("fallingStone.x:"+fallingStone.x+" y:"+fallingStone.y)
-        if (tiles.tileAtLocationEquals(tiles.getTileLocation((fallingStone.x -8)/16, (fallingStone.y - 8)/16), sprites.castle.tileGrass1)) {
-            tiles.setTileAt(tiles.getTileLocation(fallingStone.x * 16 + 8, fallingStone.y * 16 + 8), myTiles.tile1)
+        if (tiles.tileAtLocationEquals(tiles.getTileLocation((fallingStone.x - 8) / 16, (fallingStone.y + 16 - 8) / 16), sprites.castle.tileGrass1)) {
+            tiles.setTileAt(tiles.getTileLocation((fallingStone.x - 8) / 16, (fallingStone.y - 8) / 16), myTiles.tile1)
             fallingStones.removeAt(stoneIndex2)
             stoneIndex2 = stoneIndex2 - 1
             fallingStone.destroy()
