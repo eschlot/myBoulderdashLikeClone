@@ -1,5 +1,6 @@
 {
     "name": "BoulderDash",
+    "version": "0.1.0",
     "description": "",
     "dependencies": {
         "device": "*"
