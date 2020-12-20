@@ -4,6 +4,11 @@
         "mimeType": "image/x-mkcd-f4",
         "tilemapTile": true
     },
+    "tile1": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAA7u7uDgAAAO7u677uDgDgvu7u7r7uAODu7u7r7r4A7uu+7u7u7g7u7u6+7r7uC77uvu6+7u4O7r7u6+7u7g6+7uvr676+Du7u7u6+7u4O7r7u7r7u7g7g7r6+vu7rAODr7u7u7u4AAO7r6+7uDgAAAO7u7g4AAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true
+    },
     "Level": {
         "id": "Level",
         "mimeType": "application/mkcd-tilemap",
