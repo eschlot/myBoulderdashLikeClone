@@ -1,32 +1,19 @@
 namespace SpriteKind {
     export const Nugget = SpriteKind.create()
 }
-
-function testBlock(col : number, row : number): boolean {
-    if (tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath2) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath4) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath6) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath8) ||
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath8) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.builtin.brick)) {
-    	return true
-    } else {
-        return false
-    }
-}
-
-
 function moveRight () {
     mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
     mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
     mienenArbeiterCol = mienenArbeiterCol + 1
-    if (testBlock(mienenArbeiterCol,mienenArbeiterRow)) {
+    if (testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
     	
     } else {
         Mienenarbeiter.x += 16
     }
 }
-
+controller.down.onEvent(ControllerButtonEvent.Repeated, function () {
+    moveDown()
+})
 function moveUp () {
     mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
     mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
@@ -37,7 +24,18 @@ function moveUp () {
         Mienenarbeiter.y += -16
     }
 }
-
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    moveUp()
+})
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    moveLeft()
+})
+controller.up.onEvent(ControllerButtonEvent.Repeated, function () {
+    moveUp()
+})
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    moveDown()
+})
 function moveDown () {
     mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
     mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
@@ -48,34 +46,6 @@ function moveDown () {
         Mienenarbeiter.y += 16
     }
 }
-
-function moveLeft () {
-    mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
-    mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
-    mienenArbeiterCol = mienenArbeiterCol - 1
-    if (testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
-    	
-    } else {
-        Mienenarbeiter.x += -16
-    }
-}
-
-
-controller.down.onEvent(ControllerButtonEvent.Repeated, function () {
-    moveDown()
-})
-controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
-    moveDown()
-})
-controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
-    moveUp()
-})
-controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
-    moveLeft()
-})
-controller.up.onEvent(ControllerButtonEvent.Repeated, function () {
-    moveUp()
-})
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     moveRight()
 })
@@ -88,6 +58,13 @@ function erstelleStein () {
     nuggetPosition = alleTilePositionen.removeAt(zufallszahl)
     stonePositions.push(nuggetPosition)
     tiles.setTileAt(tiles.getTileLocation(nuggetPosition.col, nuggetPosition.row), myTiles.tile1)
+}
+function testBlock (col: number, row: number) {
+    if (tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath2) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath4) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath6) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath8) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), myTiles.tile1) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.builtin.brick)) {
+        return true
+    } else {
+        return false
+    }
 }
 controller.right.onEvent(ControllerButtonEvent.Repeated, function () {
     moveRight()
@@ -106,6 +83,16 @@ scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.collectibleRedCrystal, fu
     tiles.setTileAt(tiles.getTileLocation(location.col, location.row), sprites.castle.tilePath5)
     info.changeScoreBy(20)
 })
+function moveLeft () {
+    mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
+    mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
+    mienenArbeiterCol = mienenArbeiterCol - 1
+    if (testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
+    	
+    } else {
+        Mienenarbeiter.x += -16
+    }
+}
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.collectibleInsignia, function (sprite, location) {
     game.over(false, effects.bubbles)
 })
@@ -114,9 +101,9 @@ let mienenArbeiterCol = 0
 let mienenArbeiterRow = 0
 let alleTilePositionen: tiles.Location[] = []
 let Mienenarbeiter: Sprite = null
-let nuggetPosition = null
-let nextPos = null
 let temp: number[] = []
+let nextPos = null
+let nuggetPosition = null
 controller.left.repeatInterval=150
 controller.up.repeatInterval=150
 controller.down.repeatInterval=150
@@ -144,13 +131,16 @@ Mienenarbeiter.setPosition(24, 24)
 scene.cameraFollowSprite(Mienenarbeiter)
 Mienenarbeiter.setFlag(SpriteFlag.StayInScreen, false)
 alleTilePositionen = tiles.getTilesByType(sprites.castle.tileGrass1)
-info.setScore(1000)
+info.setScore(100)
 for (let index = 0; index < 30; index++) {
     erstelleNugget()
 }
 for (let index = 0; index < 50; index++) {
     erstelleStein()
 }
-game.onUpdateInterval(200, function () {
+game.onUpdateInterval(100, function () {
     info.changeScoreBy(-1)
+    if (info.score() == 0) {
+        game.over(false, effects.melt)
+    }
 })
