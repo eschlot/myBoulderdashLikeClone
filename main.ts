@@ -30,6 +30,13 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     moveLeft()
 })
+function testFallingStone (col: number, row: number) {
+    if (tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), sprites.castle.tilePath5)) {
+        return true
+    } else {
+        return false
+    }
+}
 controller.up.onEvent(ControllerButtonEvent.Repeated, function () {
     moveUp()
 })
@@ -53,7 +60,6 @@ controller.left.onEvent(ControllerButtonEvent.Repeated, function () {
     moveLeft()
 })
 function erstelleStein () {
-    let stonePositions: tiles.Location[] = []
     zufallszahl = randint(0, alleTilePositionen.length)
     nuggetPosition = alleTilePositionen.removeAt(zufallszahl)
     stonePositions.push(nuggetPosition)
@@ -96,14 +102,17 @@ function moveLeft () {
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.collectibleInsignia, function (sprite, location) {
     game.over(false, effects.bubbles)
 })
+let fallingStone: Sprite = null
+let stonePosition: tiles.Location = null
+let stonePositions: tiles.Location[] = []
+let fallingStones: Sprite[]=[]
 let zufallszahl = 0
 let mienenArbeiterCol = 0
 let mienenArbeiterRow = 0
 let alleTilePositionen: tiles.Location[] = []
 let Mienenarbeiter: Sprite = null
-let temp: number[] = []
+let nuggetPosition:tiles.Location  = null
 let nextPos = null
-let nuggetPosition = null
 controller.left.repeatInterval=150
 controller.up.repeatInterval=150
 controller.down.repeatInterval=150
@@ -142,5 +151,50 @@ game.onUpdateInterval(100, function () {
     info.changeScoreBy(-1)
     if (info.score() == 0) {
         game.over(false, effects.melt)
+    }
+})
+game.onUpdateInterval(200, function () {
+    for (let stoneIndex = 0; stoneIndex < stonePositions.length ; stoneIndex++) {
+        stonePosition = stonePositions[stoneIndex]
+        if (testFallingStone(stonePosition.col, stonePosition.row)) {
+            tiles.setTileAt(stonePosition, sprites.castle.tilePath5)
+            fallingStone = sprites.create(img`
+                . . . . e b e e e e e . . . . . 
+                . . e e e b e e b e e e e . . . 
+                . e e e b e e b e e b e e e . . 
+                . e e e e e e e e e e e e e . . 
+                e e b e e e e b e e e e b e e . 
+                e e e e b e e e e e b e e e e . 
+                b e e e e e e e e e b e b e e . 
+                e e b e e b e b e e e e e b e . 
+                e e e e e e e b e e e e e e e . 
+                e e b e e b e e e e b e e b e . 
+                e e e e e e e e e e e e e e e . 
+                . e e b e e e e e b e e b e . . 
+                . e e e e e e b e e e e e e . . 
+                . . e e e b e e e b e e e . . . 
+                . . . . e e e e e e e . . . . . 
+                . . . . . . . . . . . . . . . . 
+                `, SpriteKind.Projectile)
+            fallingStone.setPosition(8 + stonePosition.col * 16, 8 + stonePosition.row * 16)
+            fallingStone.setVelocity(0, 30)
+            stonePositions.removeAt(stoneIndex)
+            stoneIndex=stoneIndex-1
+            fallingStones.push(fallingStone)
+        }
+    }
+})
+
+game.onUpdate(function() {
+    for (let stoneIndex=0;stoneIndex<fallingStones.length;stoneIndex++)
+    {
+        fallingStone= fallingStones[stoneIndex]
+        if (tiles.tileAtLocationEquals(tiles.getTileLocation(fallingStone.x*16+8, fallingStone.y*16+8), sprites.castle.tileGrass1))
+        {
+            tiles.setTileAt(tiles.getTileLocation(fallingStone.x*16+8, fallingStone.y*16+8), myTiles.tile1)
+            fallingStones.removeAt(stoneIndex)
+            stoneIndex=stoneIndex-1
+            fallingStone.destroy()
+        }
     }
 })
