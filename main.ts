@@ -1,67 +1,104 @@
 namespace SpriteKind {
     export const Nugget = SpriteKind.create()
 }
-
-function calcMienenarbeiterPosition()
-{
-    mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
-    mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
-}
-
+// -----Right-------------------------------------------------------------------
 function moveRight () {
     calcMienenarbeiterPosition()
     mienenArbeiterCol = mienenArbeiterCol + 1
-    if (!testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
+    if (!(testBlockForEnterability(mienenArbeiterCol, mienenArbeiterRow))) {
         Mienenarbeiter.x += 16
     }
 }
+controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
+    moveRight()
+})
+controller.right.onEvent(ControllerButtonEvent.Repeated, function () {
+    moveRight()
+})
+
+// -----Down-------------------------------------------------------------------
+function moveDown () {
+    calcMienenarbeiterPosition()
+    mienenArbeiterRow = mienenArbeiterRow + 1
+    if (!(testBlockForEnterability(mienenArbeiterCol, mienenArbeiterRow))) {
+        Mienenarbeiter.y += 16
+    }
+}
+
 controller.down.onEvent(ControllerButtonEvent.Repeated, function () {
     moveDown()
 })
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    moveDown()
+})
+// -------Up-----------------------------------------------------------------
+
 function moveUp () {
     calcMienenarbeiterPosition()
     mienenArbeiterRow = mienenArbeiterRow - 1
-    if (!testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
+    if (!(testBlockForEnterability(mienenArbeiterCol, mienenArbeiterRow))) {
         Mienenarbeiter.y += -16
     }
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     moveUp()
 })
+controller.up.onEvent(ControllerButtonEvent.Repeated, function () {
+    moveUp()
+})
+
+// -----Left-------------------------------------------------------------------
+function moveLeft () {
+    calcMienenarbeiterPosition()
+    mienenArbeiterCol = mienenArbeiterCol - 1
+    if (!(testBlockForEnterability(mienenArbeiterCol, mienenArbeiterRow))) {
+        Mienenarbeiter.x += -16
+    }
+}
+
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     moveLeft()
 })
-function testFallingStone (col: number, row: number) {
+controller.left.onEvent(ControllerButtonEvent.Repeated, function () {
+    moveLeft()
+})
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+//(tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), myTiles.tile1) ||          tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), myTiles.tile2) ||
+
+function testStoneWillStartToFall (col: number, row: number) {
     calcMienenarbeiterPosition()
-    if ((tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), sprites.castle.tilePath5) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), myTiles.tile1)) && !(col == mienenArbeiterCol && row + 1 == mienenArbeiterRow)) {
+    if (
+         tiles.tileAtLocationEquals(tiles.getTileLocation(col, row + 1), sprites.castle.tilePath5)
+         && 
+        (!(col == mienenArbeiterCol && row + 1 == mienenArbeiterRow))) 
+        {
+          return true
+        } else 
+        {
+            return false
+        }
+}
+function calcMienenarbeiterPosition () {
+    mienenArbeiterRow = (Mienenarbeiter.y - 8) / 16
+    mienenArbeiterCol = (Mienenarbeiter.x - 8) / 16
+}
+// Test if the tile in col,row can be entred.
+function testBlockForEnterability (col: number, row: number) {
+    if (tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath2) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath4) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath6) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath8) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), myTiles.tile1) || tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.builtin.brick)) {
         return true
     } else {
         return false
     }
 }
-controller.up.onEvent(ControllerButtonEvent.Repeated, function () {
-    moveUp()
-})
-controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
-    moveDown()
-})
-function moveDown () {
-    calcMienenarbeiterPosition()
-    mienenArbeiterRow = mienenArbeiterRow + 1
-    if (!testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
-        Mienenarbeiter.y += 16
-    }
-}
-controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
-    moveRight()
-})
+// ------------------------------------------------------------------------
+// In case the miner is overlapping a projectile / falling stone the game is over
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Projectile, function (sprite, otherSprite) {
     game.over(false)
 })
-controller.left.onEvent(ControllerButtonEvent.Repeated, function () {
-    moveLeft()
-})
 
+// Create a stone in random position
 function erstelleStein () {
     zufallszahl = randint(0, alleTilePositionen.length)
     nuggetPosition = alleTilePositionen.removeAt(zufallszahl)
@@ -69,27 +106,7 @@ function erstelleStein () {
     tiles.setTileAt(tiles.getTileLocation(nuggetPosition.col, nuggetPosition.row), myTiles.tile1)
 }
 
-function testBlock (col: number, row: number) {
-    if (tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath2) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath4) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath6) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.castle.tilePath8) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), myTiles.tile1) || 
-        tiles.tileAtLocationEquals(tiles.getTileLocation(col, row), sprites.builtin.brick)) {
-        return true
-    } else {
-        return false
-    }
-}
-
-controller.right.onEvent(ControllerButtonEvent.Repeated, function () {
-    moveRight()
-})
-
-scene.onOverlapTile(SpriteKind.Player, sprites.castle.tileGrass1, function (sprite, location) {
-    tiles.setTileAt(tiles.getTileLocation(location.col, location.row), sprites.castle.tilePath5)
-})
-
+// Create a nugget in random position
 function erstelleNugget () {
     let nuggetPositions: tiles.Location[] = []
     zufallszahl = randint(0, alleTilePositionen.length)
@@ -98,44 +115,46 @@ function erstelleNugget () {
     tiles.setTileAt(tiles.getTileLocation(nuggetPosition.col, nuggetPosition.row), sprites.dungeon.collectibleRedCrystal)
 }
 
+// Eat up the grass
+scene.onOverlapTile(SpriteKind.Player, sprites.castle.tileGrass1, function (sprite, location) {
+    tiles.setTileAt(tiles.getTileLocation(location.col, location.row), sprites.castle.tilePath5)
+})
+
+// Eat up a nugget and increase the score
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.collectibleRedCrystal, function (sprite, location) {
     tiles.setTileAt(tiles.getTileLocation(location.col, location.row), sprites.castle.tilePath5)
     info.changeScoreBy(20)
 })
 
-function moveLeft () {
-    calcMienenarbeiterPosition()
-    mienenArbeiterCol = mienenArbeiterCol - 1
-    if (!testBlock(mienenArbeiterCol, mienenArbeiterRow)) {
-        Mienenarbeiter.x += -16
-    }
-}
+// Exit of the maze entered. Finish the game and report the final score.
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.collectibleInsignia, function (sprite, location) {
     game.over(true, effects.bubbles)
 })
+
+
+
+// Main program
+let loc: tiles.Location = null
 let fallingStone: Sprite = null
 let fallingStones: Sprite[] = []
 let stonePositions: tiles.Location[] = []
 let zufallszahl = 0
-let mienenArbeiterCol = 0
 let mienenArbeiterRow = 0
+let mienenArbeiterCol = 0
 let alleTilePositionen: tiles.Location[] = []
 let Mienenarbeiter: Sprite = null
-let stonePosition: tiles.Location = null
 let nuggetPosition:tiles.Location  = null
+let stonePosition: tiles.Location = null
 let nextPos = null
+let repeatDelay = 120
 controller.left.repeatInterval=100
 controller.up.repeatInterval=100
 controller.down.repeatInterval=100
 controller.right.repeatInterval=100
-
-controller.left.repeatDelay=90
-controller.up.repeatDelay=90
-controller.down.repeatDelay=90
-controller.right.repeatDelay=90
-
-
-
+controller.left.repeatDelay=repeatDelay
+controller.up.repeatDelay=repeatDelay
+controller.down.repeatDelay=repeatDelay
+controller.right.repeatDelay=repeatDelay
 tiles.setTilemap(tilemap`Level`)
 Mienenarbeiter = sprites.create(img`
     . . . . . . f f f f . . . . . . 
@@ -169,8 +188,15 @@ for (let index = 0; index < 50; index++) {
 game.onUpdate(function () {
     for (let stoneIndex2 = 0; stoneIndex2 <= fallingStones.length - 1; stoneIndex2++) {
         fallingStone = fallingStones[stoneIndex2]
-        if (tiles.tileAtLocationEquals(tiles.getTileLocation((fallingStone.x - 8) / 16, (fallingStone.y + 16 - 8) / 16), sprites.castle.tileGrass1)) {
-            tiles.setTileAt(tiles.getTileLocation((fallingStone.x - 8) / 16, (fallingStone.y - 8) / 16), myTiles.tile1)
+
+        let locBelow:tiles.Location = tiles.getTileLocation((fallingStone.x - 8) / 16, (fallingStone.y - 8+16) / 16)
+
+        if (tiles.tileAtLocationEquals(locBelow, sprites.castle.tileGrass1)||
+            tiles.tileAtLocationEquals(locBelow, myTiles.tile1)||
+            tiles.tileAtLocationEquals(locBelow, myTiles.tile2)) {
+            loc = tiles.getTileLocation((fallingStone.x - 8) / 16, (fallingStone.y - 8) / 16)
+            tiles.setTileAt(loc, myTiles.tile1)
+            stonePositions.push(loc)
             fallingStones.removeAt(stoneIndex2)
             stoneIndex2 = stoneIndex2 - 1
             fallingStone.destroy()
@@ -178,7 +204,7 @@ game.onUpdate(function () {
     }
 })
 game.onUpdateInterval(100, function () {
-    info.changeScoreBy(-1)
+    // info.changeScoreBy(-1)
     if (info.score() == 0) {
         game.over(false, effects.melt)
     }
@@ -186,7 +212,7 @@ game.onUpdateInterval(100, function () {
 game.onUpdateInterval(200, function () {
     for (let stoneIndex = 0; stoneIndex <= stonePositions.length - 1; stoneIndex++) {
         stonePosition = stonePositions[stoneIndex]
-        if (testFallingStone(stonePosition.col, stonePosition.row)) {
+        if (testStoneWillStartToFall(stonePosition.col, stonePosition.row)) {
             tiles.setTileAt(stonePosition, sprites.castle.tilePath5)
             fallingStone = sprites.create(img`
                 . . . . e b e e e e e . . . . . 
