@@ -147,10 +147,11 @@ let nuggetPosition:tiles.Location  = null
 let stonePosition: tiles.Location = null
 let nextPos = null
 let repeatDelay = 120
-controller.left.repeatInterval=100
-controller.up.repeatInterval=100
-controller.down.repeatInterval=100
-controller.right.repeatInterval=100
+let repeatInterval = 100
+controller.left.repeatInterval=repeatInterval
+controller.up.repeatInterval=repeatInterval
+controller.down.repeatInterval=repeatInterval
+controller.right.repeatInterval=repeatInterval
 controller.left.repeatDelay=repeatDelay
 controller.up.repeatDelay=repeatDelay
 controller.down.repeatDelay=repeatDelay
@@ -204,7 +205,7 @@ game.onUpdate(function () {
     }
 })
 game.onUpdateInterval(100, function () {
-    // info.changeScoreBy(-1)
+    info.changeScoreBy(-1)
     if (info.score() == 0) {
         game.over(false, effects.melt)
     }
